@@ -4,11 +4,73 @@
 #include "menu.h"
 using namespace std;
 
+// --- Nueva función: submenú para escoger nivel ---
+void mostrarSelectorDeNiveles() {
+    sf::RenderWindow ventanaNivel(sf::VideoMode(600, 400), "Seleccionar Nivel");
+    ventanaNivel.setFramerateLimit(60);
+
+    sf::Font fuente;
+    if (!fuente.loadFromFile("C:/Windows/Fonts/times.ttf")) {
+        cout << "Error al cargar la fuente." << endl;
+        return;
+    }
+
+    sf::Text titulo("Elige un nivel", fuente, 40);
+    titulo.setPosition(150, 50);
+    titulo.setFillColor(sf::Color::Yellow);
+
+    sf::Text niveles[3];
+    string textoNiveles[3] = {"Nivel 1", "Nivel 2", "Nivel 3"};
+
+    for (int i = 0; i < 3; i++) {
+        niveles[i].setFont(fuente);
+        niveles[i].setString(textoNiveles[i]);
+        niveles[i].setCharacterSize(35);
+        niveles[i].setPosition(220, 150 + i * 60);
+        niveles[i].setFillColor(sf::Color::White);
+    }
+
+    int nivelSeleccionado = -1;
+
+    while (ventanaNivel.isOpen()) {
+        sf::Event evento;
+        sf::Vector2i mouse = sf::Mouse::getPosition(ventanaNivel);
+
+        while (ventanaNivel.pollEvent(evento)) {
+            if (evento.type == sf::Event::Closed)
+                ventanaNivel.close();
+
+            if (evento.type == sf::Event::MouseButtonPressed && evento.mouseButton.button == sf::Mouse::Left) {
+                for (int i = 0; i < 3; i++) {
+                    if (niveles[i].getGlobalBounds().contains(mouse.x, mouse.y)) {
+                        nivelSeleccionado = i + 1;
+                        cout << "Has seleccionado el Nivel " << nivelSeleccionado << endl;
+                        ventanaNivel.close();
+                    }
+                }
+            }
+        }
+
+        for (int i = 0; i < 3; i++) {
+            if (niveles[i].getGlobalBounds().contains(mouse.x, mouse.y))
+                niveles[i].setFillColor(sf::Color(200, 120, 40));
+            else
+                niveles[i].setFillColor(sf::Color::White);
+        }
+
+        ventanaNivel.clear(sf::Color(50, 50, 50));
+        ventanaNivel.draw(titulo);
+        for (int i = 0; i < 3; i++)
+            ventanaNivel.draw(niveles[i]);
+        ventanaNivel.display();
+    }
+}
+
+// --- Menú principal ---
 void mostrarMenu() {
     sf::RenderWindow ventana(sf::VideoMode(900, 600), "Imperio Romano: Batalla por la Gloria");
     ventana.setFramerateLimit(60);
 
-    // Fondo
     sf::Texture fondoTex;
     if (!fondoTex.loadFromFile("imagenes/portada.png")) {
         cout << "Error: no se pudo cargar la imagen de fondo." << endl;
@@ -16,14 +78,12 @@ void mostrarMenu() {
     }
     sf::Sprite fondo(fondoTex);
 
-    // Fuente
     sf::Font fuente;
     if (!fuente.loadFromFile("C:/Windows/Fonts/times.ttf")) {
         cout << "Error: no se pudo cargar la fuente." << endl;
         return;
     }
 
-    // Música
     sf::Music musica;
     if (!musica.openFromFile("sonidos/batalla.wav")) {
         cout << "Error: no se pudo cargar la música." << endl;
@@ -33,7 +93,6 @@ void mostrarMenu() {
         musica.play();
     }
 
-    // Opciones
     sf::Text opciones[3];
     string textos[3] = {"JUGAR", "ESCOGER NIVEL", "SALIR"};
     for (int i = 0; i < 3; i++) {
@@ -46,7 +105,6 @@ void mostrarMenu() {
 
     int seleccion = -1;
 
-    // Bucle principal
     while (ventana.isOpen()) {
         sf::Event evento;
         sf::Vector2i mouse = sf::Mouse::getPosition(ventana);
@@ -57,26 +115,24 @@ void mostrarMenu() {
 
             if (evento.type == sf::Event::MouseButtonPressed && evento.mouseButton.button == sf::Mouse::Left) {
                 for (int i = 0; i < 3; i++) {
-                    sf::FloatRect area = opciones[i].getGlobalBounds();
-                    if (area.contains(mouse.x, mouse.y))
+                    if (opciones[i].getGlobalBounds().contains(mouse.x, mouse.y))
                         seleccion = i;
                 }
             }
         }
 
         for (int i = 0; i < 3; i++) {
-            sf::FloatRect area = opciones[i].getGlobalBounds();
-            if (area.contains(mouse.x, mouse.y))
+            if (opciones[i].getGlobalBounds().contains(mouse.x, mouse.y))
                 opciones[i].setFillColor(sf::Color(200, 120, 40));
             else
                 opciones[i].setFillColor(sf::Color::White);
         }
 
         if (seleccion == 0) {
-            cout << "Iniciando juego..." << endl;
+            cout << "Comenzando desde el Nivel 1..." << endl;
             seleccion = -1;
         } else if (seleccion == 1) {
-            cout << "Abriendo selector de niveles..." << endl;
+            mostrarSelectorDeNiveles();
             seleccion = -1;
         } else if (seleccion == 2) {
             ventana.close();
@@ -89,4 +145,3 @@ void mostrarMenu() {
         ventana.display();
     }
 }
-

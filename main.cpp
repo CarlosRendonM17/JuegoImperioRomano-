@@ -1,6 +1,6 @@
 #include "menu.h"
 
 int main() {
-    mostrarMenu();  // Llama al menú principal
+    mostrarMenu();
     return 0;
 }
