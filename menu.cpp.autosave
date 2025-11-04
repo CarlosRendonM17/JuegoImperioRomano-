@@ -1,0 +1,147 @@
+#include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
+#include <iostream>
+#include "menu.h"
+using namespace std;
+
+// --- Nueva función: submenú para escoger nivel ---
+void mostrarSelectorDeNiveles() {
+    sf::RenderWindow ventanaNivel(sf::VideoMode(600, 400), "Seleccionar Nivel");
+    ventanaNivel.setFramerateLimit(60);
+    
+    sf::Font fuente;
+    if (!fuente.loadFromFile("C:/Windows/Fonts/times.ttf")) {
+        cout << "Error al cargar la fuente." << endl;
+        return;
+    }
+    
+    sf::Text titulo("Elige un nivel", fuente, 40);
+    titulo.setPosition(150, 50);
+    titulo.setFillColor(sf::Color::Yellow);
+    
+    sf::Text niveles[3];
+    string textoNiveles[3] = {"Nivel 1", "Nivel 2", "Nivel 3"};
+    
+    for (int i = 0; i < 3; i++) {
+        niveles[i].setFont(fuente);
+        niveles[i].setString(textoNiveles[i]);
+        niveles[i].setCharacterSize(35);
+        niveles[i].setPosition(220, 150 + i * 60);
+        niveles[i].setFillColor(sf::Color::White);
+    }
+    
+    int nivelSeleccionado = -1;
+    
+    while (ventanaNivel.isOpen()) {
+        sf::Event evento;
+        sf::Vector2i mouse = sf::Mouse::getPosition(ventanaNivel);
+        
+        while (ventanaNivel.pollEvent(evento)) {
+            if (evento.type == sf::Event::Closed)
+                ventanaNivel.close();
+            
+            if (evento.type == sf::Event::MouseButtonPressed && evento.mouseButton.button == sf::Mouse::Left) {
+                for (int i = 0; i < 3; i++) {
+                    if (niveles[i].getGlobalBounds().contains(mouse.x, mouse.y)) {
+                        nivelSeleccionado = i + 1;
+                        cout << "Has seleccionado el Nivel " << nivelSeleccionado << endl;
+                        ventanaNivel.close();
+                    }
+                }
+            }
+        }
+        
+        for (int i = 0; i < 3; i++) {
+            if (niveles[i].getGlobalBounds().contains(mouse.x, mouse.y))
+                niveles[i].setFillColor(sf::Color(200, 120, 40));
+            else
+                niveles[i].setFillColor(sf::Color::White);
+        }
+        
+        ventanaNivel.clear(sf::Color(50, 50, 50));
+        ventanaNivel.draw(titulo);
+        for (int i = 0; i < 3; i++)
+            ventanaNivel.draw(niveles[i]);
+        ventanaNivel.display();
+    }
+}
+
+// --- Menú principal ---
+void mostrarMenu() {
+    sf::RenderWindow ventana(sf::VideoMode(900, 600), "Imperio Romano: Batalla por la Gloria");
+    ventana.setFramerateLimit(60);
+    
+    sf::Texture fondoTex;
+    if (!fondoTex.loadFromFile("imagenes/portada.png")) {
+        cout << "Error: no se pudo cargar la imagen de fondo." << endl;
+        return;
+    }
+    sf::Sprite fondo(fondoTex);
+    
+    sf::Font fuente;
+    if (!fuente.loadFromFile("C:/Windows/Fonts/times.ttf")) {
+        cout << "Error: no se pudo cargar la fuente." << endl;
+        return;
+    }
+    
+    sf::Music musica;
+    if (!musica.openFromFile("sonidos/batalla.wav")) {
+        cout << "Error: no se pudo cargar la música." << endl;
+    } else {
+        musica.setLoop(true);
+        musica.setVolume(50);
+        musica.play();
+    }
+    
+    sf::Text opciones[3];
+    string textos[3] = {"JUGAR", "ESCOGER NIVEL", "SALIR"};
+    for (int i = 0; i < 3; i++) {
+        opciones[i].setFont(fuente);
+        opciones[i].setString(textos[i]);
+        opciones[i].setCharacterSize(40);
+        opciones[i].setFillColor(sf::Color::White);
+        opciones[i].setPosition(350, 350 + i * 70);
+    }
+    
+    int seleccion = -1;
+    
+    while (ventana.isOpen()) {
+        sf::Event evento;
+        sf::Vector2i mouse = sf::Mouse::getPosition(ventana);
+        
+        while (ventana.pollEvent(evento)) {
+            if (evento.type == sf::Event::Closed)
+                ventana.close();
+            
+            if (evento.type == sf::Event::MouseButtonPressed && evento.mouseButton.button == sf::Mouse::Left) {
+                for (int i = 0; i < 3; i++) {
+                    if (opciones[i].getGlobalBounds().contains(mouse.x, mouse.y))
+                        seleccion = i;
+                }
+            }
+        }
+        
+        for (int i = 0; i < 3; i++) {
+            if (opciones[i].getGlobalBounds().contains(mouse.x, mouse.y))
+                opciones[i].setFillColor(sf::Color(200, 120, 40));
+            else
+                opciones[i].setFillColor(sf::Color::White);
+        }
+        
+        if (seleccion == 0) {
+            cout << "Comenzando desde el Nivel 1..." << endl;
+            seleccion = -1;
+        } else if (seleccion == 1) {
+            mostrarSelectorDeNiveles();
+            seleccion = -1;
+        } else if (seleccion == 2) {
+            ventana.close();
+        }
+        
+        ventana.clear();
+        ventana.draw(fondo);
+        for (int i = 0; i < 3; i++)
+            ventana.draw(opciones[i]);
+        ventana.display();
+    }
+}
